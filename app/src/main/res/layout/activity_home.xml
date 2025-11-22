@@ -7,4 +7,13 @@
     android:layout_height="match_parent"
     tools:context=".Home">
 
+    <EditText
+        android:id="@+id/editTextText2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Hello World!"
+        tools:layout_editor_absoluteX="100dp"
+        tools:layout_editor_absoluteY="341dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>
