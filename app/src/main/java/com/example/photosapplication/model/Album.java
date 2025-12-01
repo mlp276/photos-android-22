@@ -68,6 +68,15 @@ public class Album implements Serializable {
     }
 
     /**
+     * Provide a string representation of the album
+     *
+     * @return a string representing the album
+     */
+    public String toString() {
+        return name;
+    }
+
+    /**
      * Provides a list iterator for the photos in the album
      * 
      * @return the list iterator to the photos
