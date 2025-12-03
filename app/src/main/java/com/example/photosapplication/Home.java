@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.PopupMenu;
@@ -22,10 +23,11 @@ import java.util.List;
 
 public class Home extends AppCompatActivity {
 
-    ListView albumListView;
     UniqueList<Album> albums;
+    ListView albumListView;
     List<String> albumDisplayNames;
     ArrayAdapter<String> adapter;
+    Button addAlbumsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,9 @@ public class Home extends AppCompatActivity {
         albumListView.setOnItemClickListener((parent, view, position, id) -> {
             showAlbumsPopupMenu(view, position);
         });
+
+        addAlbumsButton = findViewById(R.id.addAlbumsButton);
+        addAlbumsButton.setOnClickListener(v -> addAlbum());
 
         refreshDisplayList();
     }
@@ -109,6 +114,28 @@ public class Home extends AppCompatActivity {
 
     private void openAlbum(Album album) {
 
+    }
+
+    private void addAlbum() {
+        EditText input = new EditText(this);
+        input.setHint("Album name");
+
+        new AlertDialog.Builder(this)
+                .setTitle("Add New Album")
+                .setView(input)
+                .setPositiveButton("Add", (dialog, which) -> {
+                    String name = input.getText().toString().trim();
+                    if (name.isEmpty() || !albums.add(new Album(name))) {
+                        new AlertDialog.Builder(this)
+                                .setTitle("Error Adding Album")
+                                .setMessage("Could not add the album.")
+                                .setPositiveButton("OK", null)
+                                .show();
+                    }
+                    refreshDisplayList();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void refreshDisplayList() {
