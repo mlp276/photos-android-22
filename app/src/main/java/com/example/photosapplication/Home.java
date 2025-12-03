@@ -1,6 +1,7 @@
 package com.example.photosapplication;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -21,7 +22,7 @@ import com.example.photosapplication.model.util.UniqueList;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Home extends AppCompatActivity {
+public class Home extends AppCompatActivity implements PageView {
 
     UniqueList<Album> albums;
     ListView albumListView;
@@ -56,7 +57,7 @@ public class Home extends AppCompatActivity {
         addAlbumsButton = findViewById(R.id.addAlbumsButton);
         addAlbumsButton.setOnClickListener(v -> addAlbum());
 
-        refreshDisplayList();
+        refreshView();
     }
 
     private void showAlbumsPopupMenu(View anchor, int position) {
@@ -75,7 +76,7 @@ public class Home extends AppCompatActivity {
                 deleteAlbum(album);
                 return true;
             } else if (id == R.id.open) {
-                // TODO: openAlbum(album);
+                openAlbum(album);
                 return true;
             }
 
@@ -94,7 +95,7 @@ public class Home extends AppCompatActivity {
                 .setView(input)
                 .setPositiveButton("OK", (d, w) -> {
                     album.setName(input.getText().toString());
-                    refreshDisplayList();
+                    refreshView();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -106,14 +107,16 @@ public class Home extends AppCompatActivity {
                 .setMessage("Are you sure you want to delete this album?")
                 .setPositiveButton("Delete", (dialog, which) -> {
                     albums.remove(album);
-                    refreshDisplayList();
+                    refreshView();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
     }
 
     private void openAlbum(Album album) {
-
+        Intent intent = new Intent(this, AlbumDetails.class);
+        intent.putExtra("album_object", album);
+        startActivity(intent);
     }
 
     private void addAlbum() {
@@ -132,13 +135,13 @@ public class Home extends AppCompatActivity {
                                 .setPositiveButton("OK", null)
                                 .show();
                     }
-                    refreshDisplayList();
+                    refreshView();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
     }
 
-    private void refreshDisplayList() {
+    public void refreshView() {
         albumDisplayNames.clear();
         for (Album a : albums) {
             albumDisplayNames.add(a.getName());
