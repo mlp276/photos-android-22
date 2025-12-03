@@ -17,14 +17,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.photosapplication.model.Album;
-import com.example.photosapplication.model.util.UniqueList;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Home extends AppCompatActivity implements PageView {
 
-    UniqueList<Album> albums;
+    AppState appState;
+    List<Album> albums;
     ListView albumListView;
     List<String> albumDisplayNames;
     ArrayAdapter<String> adapter;
@@ -41,11 +41,10 @@ public class Home extends AppCompatActivity implements PageView {
             return insets;
         });
 
+        appState = StateManager.load(this);
+        albums = appState.getAlbums();
+
         albumListView = findViewById(R.id.albumListView);
-
-        albums = new UniqueList<Album>();
-        albums.add(new Album("Hello World!"));
-
         albumDisplayNames = new ArrayList<String>();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, albumDisplayNames);
         albumListView.setAdapter(adapter);
@@ -58,6 +57,12 @@ public class Home extends AppCompatActivity implements PageView {
         addAlbumsButton.setOnClickListener(v -> addAlbum());
 
         refreshView();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        StateManager.save(this, appState);
     }
 
     private void showAlbumsPopupMenu(View anchor, int position) {
