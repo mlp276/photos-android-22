@@ -6,7 +6,6 @@ import java.util.Collection;
 
 /**
  * UniqueList - extends the ArrayList object, but to only include unique elements
- * 
  * The adding methods of List are modified so that they are only added into the list
  * based on the comparison of the elements in the list and the element to be added
  * based on the equals(Object o) method
