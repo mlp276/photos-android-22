@@ -1,22 +1,32 @@
 package com.example.photosapplication;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.photosapplication.model.Album;
-import com.example.photosapplication.model.util.UniqueList;
+import com.example.photosapplication.model.Photo;
+import com.example.photosapplication.util.PhotoAdapter;
 
-public class AlbumDetails extends AppCompatActivity implements PageView {
+public class AlbumDetails extends AppCompatActivity {
 
     Album album;
+    RecyclerView recyclerView;
+    Button addPhotosButton;
+    private ActivityResultLauncher<Intent> pickImageLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,12 +46,34 @@ public class AlbumDetails extends AppCompatActivity implements PageView {
             return;
         }
 
-        Log.d("AlbumDetails", album.getName());
+        recyclerView = findViewById(R.id.photosRecyclerView);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        PhotoAdapter adapter = new PhotoAdapter(album.getPhotos(), this);
+        recyclerView.setAdapter(adapter);
 
-        refreshView();
+        pickImageLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null) {
+                            Uri uri = data.getData();
+                            Photo photo = new Photo(uri);
+                            album.addPhoto(photo);
+                            adapter.notifyDataSetChanged();
+                        }
+                    }
+                }
+        );
+
+        addPhotosButton = findViewById(R.id.addPhotosButton);
+        addPhotosButton.setOnClickListener(v -> addPhoto());
     }
 
-    public void refreshView() {
-
+    private void addPhoto() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType("image/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        pickImageLauncher.launch(intent);
     }
 }

@@ -1,4 +1,4 @@
-package com.example.photosapplication.model.util;
+package com.example.photosapplication.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.example.photosapplication;
+package com.example.photosapplication.util;
 
 import android.content.Context;
 import android.util.Log;

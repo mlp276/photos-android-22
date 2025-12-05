@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.List;
 import java.util.function.Predicate;
-import com.example.photosapplication.model.util.UniqueList;
 
 /**
  * Album - the album to contain a set of photos for the user.
@@ -60,6 +59,10 @@ public class Album implements Serializable {
         }
         Album other = (Album) o;
         return name.equals(other.getName());
+    }
+
+    public List<Photo> getPhotos() {
+        return photos;
     }
 
     /**

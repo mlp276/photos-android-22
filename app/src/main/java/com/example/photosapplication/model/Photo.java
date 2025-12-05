@@ -1,9 +1,13 @@
 package com.example.photosapplication.model;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
-import com.example.photosapplication.model.util.UniqueList;
 
 /**
  * Photo - the photo of the application
@@ -44,10 +48,10 @@ public class Photo implements Serializable {
 
     /**
      * Gets the uri of the photo
-     * 
+     *
      * @return the uri of the photo
      */
-    Uri getUri() {
+    public Uri getUri() {
         return uri;
     }
 

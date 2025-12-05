@@ -1,4 +1,4 @@
-package com.example.photosapplication;
+package com.example.photosapplication.util;
 
 import com.example.photosapplication.model.Album;
 

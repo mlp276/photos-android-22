@@ -17,11 +17,13 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.photosapplication.model.Album;
+import com.example.photosapplication.util.AppState;
+import com.example.photosapplication.util.StateManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Home extends AppCompatActivity implements PageView {
+public class Home extends AppCompatActivity {
 
     AppState appState;
     List<Album> albums;
