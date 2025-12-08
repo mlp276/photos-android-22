@@ -1,7 +1,9 @@
 package com.example.photosapplication.util;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,18 +13,19 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.photosapplication.R;
+import com.example.photosapplication.model.Album;
 import com.example.photosapplication.model.Photo;
 
 import java.io.IOException;
-import java.util.List;
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
+    private static final String TAG = "PhotoAdapter";
 
-    private List<Photo> photos;
-    private Context context;
+    private final Album album;
+    private final Context context;
 
-    public PhotoAdapter(List<Photo> photos, Context context) {
-        this.photos = photos;
+    public PhotoAdapter(Album album, Context context) {
+        this.album = album;
         this.context = context;
     }
 
@@ -36,12 +39,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     @Override
     public void onBindViewHolder(@NonNull PhotoViewHolder holder, int position) {
-        Photo photo = photos.get(position);
+        Photo photo = album.getPhoto(position);
 
-        // Simplest (may be OK for thumbnails)
-//        holder.photoImageView.setImageURI(photo.getUri());
-
-        // OR use safe bitmap decoding for large images:
         Bitmap bmp = null;
         try {
             bmp = ImageUtil.loadBitmapFromPhoto(context, photo, 300, 300);
@@ -49,11 +48,15 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
             throw new RuntimeException(e);
         }
         holder.photoImageView.setImageBitmap(bmp);
+
+        holder.photoImageView.setOnClickListener(v -> {
+            showPhotoOptionsDialog(photo, position);
+        });
     }
 
     @Override
     public int getItemCount() {
-        return photos.size();
+        return album.getPhotoCount();
     }
 
     public static class PhotoViewHolder extends RecyclerView.ViewHolder {
@@ -63,5 +66,36 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
             super(itemView);
             photoImageView = itemView.findViewById(R.id.photoImageView);
         }
+    }
+
+    private void showPhotoOptionsDialog(Photo photo, int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Photo Options");
+
+        String[] options = {"Remove Photo", "View Photo"};
+
+        builder.setItems(options, (dialog, which) -> {
+            switch (which) {
+                case 0:
+                    removePhoto(photo, position);
+                    break;
+                case 1:
+                    openPhoto(photo);
+                    break;
+
+            }
+        });
+
+        builder.show();
+    }
+
+    private void removePhoto(Photo photo, int position) {
+        album.removePhoto(photo);
+        notifyItemRemoved(position);
+        Log.d(TAG, "Successfully removed photo, album now has " + album.getPhotoCount() + " photos.");
+    }
+
+    private void openPhoto(Photo photo) {
+        Log.d(TAG, "Opened photo: " + photo.getUri());
     }
 }

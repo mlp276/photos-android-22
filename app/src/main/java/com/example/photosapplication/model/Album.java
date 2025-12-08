@@ -75,6 +75,10 @@ public class Album implements Serializable {
         return photos.add(photo);
     }
 
+    public Photo getPhoto(int position) {
+        return photos.get(position);
+    }
+
     /**
      * Removes a photo from the album
      * 

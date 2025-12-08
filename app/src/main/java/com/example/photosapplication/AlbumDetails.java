@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -22,10 +23,12 @@ import com.example.photosapplication.model.Photo;
 import com.example.photosapplication.util.PhotoAdapter;
 
 public class AlbumDetails extends AppCompatActivity {
+    private static final String TAG = "AlbumDetails";
 
     Album album;
     RecyclerView recyclerView;
     Button addPhotosButton;
+    private PhotoAdapter adapter;
     private ActivityResultLauncher<Intent> pickImageLauncher;
 
     @Override
@@ -39,6 +42,7 @@ public class AlbumDetails extends AppCompatActivity {
             return insets;
         });
 
+        // Get the album that was opened from the home page
         album = getIntent().getSerializableExtra("album_object", Album.class);
         if (album == null) {
             Toast.makeText(this, "Error: Album not found.", Toast.LENGTH_LONG).show();
@@ -46,11 +50,17 @@ public class AlbumDetails extends AppCompatActivity {
             return;
         }
 
+        // Set the custom Photo Adapter class to the photos view
         recyclerView = findViewById(R.id.photosRecyclerView);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-        PhotoAdapter adapter = new PhotoAdapter(album.getPhotos(), this);
+        adapter = new PhotoAdapter(album, this);
         recyclerView.setAdapter(adapter);
 
+        // Provide functionality to the 'Add Photo' button
+        addPhotosButton = findViewById(R.id.addPhotosButton);
+        addPhotosButton.setOnClickListener(v -> addPhoto());
+
+        // Provide functionality to retrieve photos from the storage to add
         pickImageLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -60,17 +70,17 @@ public class AlbumDetails extends AppCompatActivity {
                             Uri uri = data.getData();
                             Photo photo = new Photo(uri);
                             album.addPhoto(photo);
+                            Log.d(TAG, "Added photo located at " + photo.getUri());
+
                             adapter.notifyDataSetChanged();
                         }
                     }
                 }
         );
-
-        addPhotosButton = findViewById(R.id.addPhotosButton);
-        addPhotosButton.setOnClickListener(v -> addPhoto());
     }
 
     private void addPhoto() {
+        // Create an intent to get the photo from the storage
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType("image/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);

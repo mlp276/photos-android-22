@@ -3,6 +3,7 @@ package com.example.photosapplication;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -17,6 +18,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.photosapplication.model.Album;
+import com.example.photosapplication.model.UniqueList;
 import com.example.photosapplication.util.AppState;
 import com.example.photosapplication.util.StateManager;
 
@@ -24,13 +26,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Home extends AppCompatActivity {
+    private static final String TAG = "Home";
 
     AppState appState;
     List<Album> albums;
     ListView albumListView;
     List<String> albumDisplayNames;
-    ArrayAdapter<String> adapter;
     Button addAlbumsButton;
+    private ArrayAdapter<String> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,18 +46,21 @@ public class Home extends AppCompatActivity {
             return insets;
         });
 
-        appState = StateManager.load(this);
-        albums = appState.getAlbums();
+        // appState = StateManager.load(this);
+        albums = new UniqueList<Album>();
 
+        // Set the array adapter to the albums list view
         albumListView = findViewById(R.id.albumListView);
         albumDisplayNames = new ArrayList<String>();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, albumDisplayNames);
         albumListView.setAdapter(adapter);
 
+        // Provide functionality to each item of the list of albums
         albumListView.setOnItemClickListener((parent, view, position, id) -> {
             showAlbumsPopupMenu(view, position);
         });
 
+        // Provide functionality to the 'Add Album' button
         addAlbumsButton = findViewById(R.id.addAlbumsButton);
         addAlbumsButton.setOnClickListener(v -> addAlbum());
 
@@ -64,15 +70,17 @@ public class Home extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        StateManager.save(this, appState);
+        // StateManager.save(this, appState);
     }
 
     private void showAlbumsPopupMenu(View anchor, int position) {
         Album album = albums.get(position);
 
+        // Initialize the popup menu object
         PopupMenu popup = new PopupMenu(this, anchor);
         popup.getMenuInflater().inflate(R.menu.album_options_menu, popup.getMenu());
 
+        // Set the menu item functionalities upon click
         popup.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
 
@@ -97,11 +105,15 @@ public class Home extends AppCompatActivity {
         EditText input = new EditText(this);
         input.setText(album.getName());
 
+        // Initialize the alert dialog to prompt for renaming the album
         new AlertDialog.Builder(this)
                 .setTitle("Rename Album")
                 .setView(input)
                 .setPositiveButton("OK", (d, w) -> {
+                    String originalName = album.getName();
+                    String newName = input.getText().toString();
                     album.setName(input.getText().toString());
+                    Log.d(TAG, "Renamed album from " + originalName + " to " + newName + ".");
                     refreshView();
                 })
                 .setNegativeButton("Cancel", null)
@@ -109,11 +121,13 @@ public class Home extends AppCompatActivity {
     }
 
     private void deleteAlbum(Album album) {
+        // Initialize the alert dialog to prompt confirmation of album deletion
         new AlertDialog.Builder(this)
                 .setTitle("Confirm Deletion")
                 .setMessage("Are you sure you want to delete this album?")
                 .setPositiveButton("Delete", (dialog, which) -> {
                     albums.remove(album);
+                    Log.d(TAG, "Successfully removed album, now there are " + albums.size() + " albums.");
                     refreshView();
                 })
                 .setNegativeButton("Cancel", null)
@@ -121,6 +135,8 @@ public class Home extends AppCompatActivity {
     }
 
     private void openAlbum(Album album) {
+        // Create an intent to switch activities to open the album
+        Log.d(TAG, "Opened album: " + album.getName());
         Intent intent = new Intent(this, AlbumDetails.class);
         intent.putExtra("album_object", album);
         startActivity(intent);
@@ -130,6 +146,7 @@ public class Home extends AppCompatActivity {
         EditText input = new EditText(this);
         input.setHint("Album name");
 
+        // Initialize the alert dialog to prompt for the new album
         new AlertDialog.Builder(this)
                 .setTitle("Add New Album")
                 .setView(input)
@@ -142,6 +159,7 @@ public class Home extends AppCompatActivity {
                                 .setPositiveButton("OK", null)
                                 .show();
                     }
+                    Log.d(TAG, "Added album " + name + ", now there are " + albums.size() + " albums.");
                     refreshView();
                 })
                 .setNegativeButton("Cancel", null)
@@ -149,6 +167,7 @@ public class Home extends AppCompatActivity {
     }
 
     public void refreshView() {
+        // Refresh the view after a change in the albums list
         albumDisplayNames.clear();
         for (Album a : albums) {
             albumDisplayNames.add(a.getName());
