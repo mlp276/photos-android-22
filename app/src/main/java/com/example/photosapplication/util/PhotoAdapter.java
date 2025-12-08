@@ -1,7 +1,10 @@
 package com.example.photosapplication.util;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +15,8 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.photosapplication.AlbumDetails;
+import com.example.photosapplication.PhotoDetails;
 import com.example.photosapplication.R;
 import com.example.photosapplication.model.Album;
 import com.example.photosapplication.model.Photo;
@@ -20,14 +25,14 @@ import java.io.IOException;
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
     private static final String TAG = "PhotoAdapter";
-    private static final String[] options = {"Remove Photo", "Display Photo"};
+    private static final String[] options = {"Display Photo", "Remove Photo"};
 
-    private final Album album;
     private final Context context;
+    private final Album album;
 
-    public PhotoAdapter(Album album, Context context) {
-        this.album = album;
+    public PhotoAdapter(Context context, Album album) {
         this.context = context;
+        this.album = album;
     }
 
     @NonNull
@@ -76,10 +81,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         builder.setItems(options, (dialog, which) -> {
             switch (which) {
                 case 0:
-                    removePhoto(photo, position);
+                    displayPhoto(photo, position);
                     break;
                 case 1:
-                    openPhoto(photo);
+                    removePhoto(photo, position);
                     break;
             }
         });
@@ -87,13 +92,17 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         builder.show();
     }
 
+    private void displayPhoto(Photo photo, int position) {
+        Log.d(TAG, "Opened photo: " + photo.getUri());
+        Intent intent = new Intent(context, PhotoDetails.class);
+        intent.putExtra("albumName", album.getName());
+        intent.putExtra("photoPosition", position);
+        context.startActivity(intent);
+    }
+
     private void removePhoto(Photo photo, int position) {
         album.removePhoto(photo);
         notifyItemRemoved(position);
         Log.d(TAG, "Successfully removed photo, album now has " + album.getPhotoCount() + " photos.");
-    }
-
-    private void openPhoto(Photo photo) {
-        Log.d(TAG, "Opened photo: " + photo.getUri());
     }
 }

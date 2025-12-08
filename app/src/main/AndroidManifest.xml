@@ -13,6 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PhotosApplication">
         <activity
+            android:name=".PhotoDetails"
+            android:exported="false" />
+        <activity
             android:name=".AlbumDetails"
             android:exported="false" />
         <activity

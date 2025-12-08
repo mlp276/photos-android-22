@@ -1,9 +1,11 @@
 package com.example.photosapplication.util;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.provider.OpenableColumns;
 
 import com.example.photosapplication.model.Photo;
 
@@ -55,6 +57,40 @@ public class ImageUtil {
             }
         }
         return inSampleSize;
+    }
+
+    public static String getFileName(Context context, Uri uri) {
+        String result = null;
+
+        // If the scheme is "content://", query the ContentResolver
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = context.getContentResolver().query(
+                    uri,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (nameIndex >= 0) {
+                        result = cursor.getString(nameIndex);
+                    }
+                }
+            } finally {
+                if (cursor != null)
+                    cursor.close();
+            }
+        }
+
+        // Fallback for "file://" URIs
+        if (result == null) {
+            result = uri.getLastPathSegment();
+        }
+
+        return result;
     }
 
 }

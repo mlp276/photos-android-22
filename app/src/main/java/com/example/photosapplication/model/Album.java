@@ -79,6 +79,20 @@ public class Album implements Serializable {
         return photos.get(position);
     }
 
+    public Photo getNextPhoto(int position) {
+        if (position + 1 < getPhotoCount()) {
+            return getPhoto(position + 1);
+        }
+        return null;
+    }
+
+    public Photo getPreviousPhoto(int position) {
+        if (position - 1 >= 0) {
+            return getPhoto(position - 1);
+        }
+        return null;
+    }
+
     /**
      * Removes a photo from the album
      * 

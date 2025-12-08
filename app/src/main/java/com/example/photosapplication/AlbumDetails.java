@@ -52,7 +52,7 @@ public class AlbumDetails extends AppCompatActivity {
         // Set the custom Photo Adapter class to the photos view
         recyclerView = findViewById(R.id.photosRecyclerView);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-        adapter = new PhotoAdapter(album, this);
+        adapter = new PhotoAdapter(this, album);
         recyclerView.setAdapter(adapter);
 
         // Provide functionality to the 'Add Photo' button

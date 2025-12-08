@@ -6,4 +6,6 @@
     <string name="add_album">Add Album</string>
     <string name="add_photo">Add Photo</string>
     <string name="na">N/A</string>
+    <string name="next_photo">&gt;&gt; Next</string>
+    <string name="previous_photo">&lt;&lt; Prev</string>
 </resources>
