@@ -2,24 +2,18 @@ package com.example.photosapplication.model;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.function.Predicate;
-import com.example.photosapplication.model.util.UniqueList;
 
 /**
- * Album - the album to contain a set of photos for the user
- * 
+ * Album - the album to contain a set of photos for the user.
  * This album provides business logic for adding and removing photos,
  * retrieving the earliest and latest photos that were taken, and searching
  * for photos based on the date range and the tags of the photos
  */
 public class Album implements Serializable {
-    static final long serialVersionUID = 1L;
-
     private String name;
-    private List<Photo> photos;
+    private final List<Photo> photos;
     
     /**
      * Instantiates the Album object
@@ -45,7 +39,7 @@ public class Album implements Serializable {
      * Sets the name of the album
      * 
      * @param name the name of the album to set
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException the input album name is null or blank
      */
     public void setName(String name) throws IllegalArgumentException {
         if (name == null || name.isBlank()) {
@@ -60,29 +54,15 @@ public class Album implements Serializable {
      * @return a boolean value comparing the two objects
      */
     public boolean equals(Object o) {
-        if (o == null || !(o instanceof Album)) {
+        if (!(o instanceof Album)) {
             return false;
         }
         Album other = (Album) o;
         return name.equals(other.getName());
     }
 
-    /**
-     * Provide a string representation of the album
-     *
-     * @return a string representing the album
-     */
-    public String toString() {
-        return name;
-    }
-
-    /**
-     * Provides a list iterator for the photos in the album
-     * 
-     * @return the list iterator to the photos
-     */
-    public ListIterator<Photo> getPhotoListIterator() {
-        return photos.listIterator();
+    public List<Photo> getPhotos() {
+        return photos;
     }
 
     /**
@@ -93,6 +73,24 @@ public class Album implements Serializable {
      */
     public boolean addPhoto(Photo photo) {
         return photos.add(photo);
+    }
+
+    public Photo getPhoto(int position) {
+        return photos.get(position);
+    }
+
+    public Photo getNextPhoto(int position) {
+        if (position + 1 < getPhotoCount()) {
+            return getPhoto(position + 1);
+        }
+        return null;
+    }
+
+    public Photo getPreviousPhoto(int position) {
+        if (position - 1 >= 0) {
+            return getPhoto(position - 1);
+        }
+        return null;
     }
 
     /**
@@ -121,42 +119,6 @@ public class Album implements Serializable {
      */
     public int getPhotoCount() {
         return photos.size();
-    }
-
-    /**
-     * Gets the range of the date takens of the photos in the album
-     * 
-     * @return a string indicating the range from earliest to latest date taken
-     */
-    public String getDateTakenRange() {
-        if (hasPhotos()) {
-            return getEarliestDateTaken() + " - " + getLatestDateTaken();
-        }
-        return "N/A";
-    }
-
-    /**
-     * Gets the earliest date taken of a photo in the album
-     * 
-     * @return the earliest date taken of a photo in the album 
-     */
-    public String getEarliestDateTaken() {
-        if (hasPhotos()) {
-            return Photo.photoDateFormatter.format(Collections.min(photos.stream().map(Photo::getDateTaken).toList()).getTime());
-        }
-        return null;
-    }
-
-    /**
-     * Gets the lastest date taken of a photo in the album
-     * 
-     * @return the latest date taken of a photo in the album 
-     */
-    public String getLatestDateTaken() {
-        if (hasPhotos()) {
-            return Photo.photoDateFormatter.format(Collections.max(photos.stream().map(Photo::getDateTaken).toList()).getTime());
-        }
-        return null;
     }
 
     /**
