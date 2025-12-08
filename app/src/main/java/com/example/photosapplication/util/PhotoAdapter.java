@@ -20,6 +20,7 @@ import java.io.IOException;
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
     private static final String TAG = "PhotoAdapter";
+    private static final String[] options = {"Remove Photo", "Display Photo"};
 
     private final Album album;
     private final Context context;
@@ -72,8 +73,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Photo Options");
 
-        String[] options = {"Remove Photo", "View Photo"};
-
         builder.setItems(options, (dialog, which) -> {
             switch (which) {
                 case 0:
@@ -82,7 +81,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
                 case 1:
                     openPhoto(photo);
                     break;
-
             }
         });
 

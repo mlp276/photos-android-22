@@ -1,6 +1,7 @@
 package com.example.photosapplication;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.photosapplication.model.Album;
 import com.example.photosapplication.model.Photo;
+import com.example.photosapplication.util.AppState;
 import com.example.photosapplication.util.PhotoAdapter;
 
 public class AlbumDetails extends AppCompatActivity {
@@ -43,12 +45,9 @@ public class AlbumDetails extends AppCompatActivity {
         });
 
         // Get the album that was opened from the home page
-        album = getIntent().getSerializableExtra("album_object", Album.class);
-        if (album == null) {
-            Toast.makeText(this, "Error: Album not found.", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
+        String albumName = getIntent().getStringExtra("albumName");
+        AppState currentState = ((PhotosApplication) getApplication()).getAppState();
+        album = currentState.getAlbumByName(albumName);
 
         // Set the custom Photo Adapter class to the photos view
         recyclerView = findViewById(R.id.photosRecyclerView);
@@ -66,14 +65,33 @@ public class AlbumDetails extends AppCompatActivity {
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         Intent data = result.getData();
-                        if (data != null) {
-                            Uri uri = data.getData();
-                            Photo photo = new Photo(uri);
-                            album.addPhoto(photo);
-                            Log.d(TAG, "Added photo located at " + photo.getUri());
-
-                            adapter.notifyDataSetChanged();
+                        if (data == null) {
+                            new AlertDialog.Builder(this)
+                                    .setTitle("Error Adding Photo")
+                                    .setMessage("Could not add the photo.")
+                                    .setPositiveButton("OK", null)
+                                    .show();
+                            return;
                         }
+
+                        Uri uri = data.getData();
+                        if (uri == null) {
+                            new AlertDialog.Builder(this)
+                                    .setTitle("Error Adding Photo")
+                                    .setMessage("Could not add the photo.")
+                                    .setPositiveButton("OK", null)
+                                    .show();
+                            return;
+                        }
+                        getContentResolver().takePersistableUriPermission(
+                                uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        );
+
+                        Photo photo = new Photo(uri);
+                        album.addPhoto(photo);
+                        Log.d(TAG, "Added photo located at " + photo.getUri());
+                        adapter.notifyDataSetChanged();
                     }
                 }
         );
@@ -84,6 +102,8 @@ public class AlbumDetails extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType("image/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         pickImageLauncher.launch(intent);
     }
 }

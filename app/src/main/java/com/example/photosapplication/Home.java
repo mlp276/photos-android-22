@@ -1,5 +1,7 @@
 package com.example.photosapplication;
 
+import static java.util.stream.Collectors.toList;
+
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,8 +29,8 @@ import java.util.List;
 
 public class Home extends AppCompatActivity {
     private static final String TAG = "Home";
+    private static final String[] options = {"Open Album", "Rename Album", "Remove Album"};
 
-    AppState appState;
     List<Album> albums;
     ListView albumListView;
     List<String> albumDisplayNames;
@@ -46,8 +48,9 @@ public class Home extends AppCompatActivity {
             return insets;
         });
 
-        // appState = StateManager.load(this);
-        albums = new UniqueList<Album>();
+        // Retrieve the saved state of the application
+        AppState currentState = ((PhotosApplication) getApplication()).getAppState();
+        albums = currentState.getAlbums();
 
         // Set the array adapter to the albums list view
         albumListView = findViewById(R.id.albumListView);
@@ -67,38 +70,27 @@ public class Home extends AppCompatActivity {
         refreshView();
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        // StateManager.save(this, appState);
-    }
-
     private void showAlbumsPopupMenu(View anchor, int position) {
         Album album = albums.get(position);
 
-        // Initialize the popup menu object
-        PopupMenu popup = new PopupMenu(this, anchor);
-        popup.getMenuInflater().inflate(R.menu.album_options_menu, popup.getMenu());
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Album Options");
 
-        // Set the menu item functionalities upon click
-        popup.setOnMenuItemClickListener(item -> {
-            int id = item.getItemId();
-
-            if (id == R.id.rename) {
-                renameAlbum(album);
-                return true;
-            } else if (id == R.id.delete) {
-                deleteAlbum(album);
-                return true;
-            } else if (id == R.id.open) {
-                openAlbum(album);
-                return true;
+        builder.setItems(options, (dialog, which) -> {
+            switch (which) {
+                case 0:
+                    openAlbum(album);
+                    break;
+                case 1:
+                    renameAlbum(album);
+                    break;
+                case 2:
+                    removeAlbum(album);
+                    break;
             }
-
-            return false;
         });
 
-        popup.show();
+        builder.show();
     }
 
     private void renameAlbum(Album album) {
@@ -120,8 +112,8 @@ public class Home extends AppCompatActivity {
                 .show();
     }
 
-    private void deleteAlbum(Album album) {
-        // Initialize the alert dialog to prompt confirmation of album deletion
+    private void removeAlbum(Album album) {
+        // Initialize the alert dialog to prompt confirmation of album removal
         new AlertDialog.Builder(this)
                 .setTitle("Confirm Deletion")
                 .setMessage("Are you sure you want to delete this album?")
@@ -138,7 +130,7 @@ public class Home extends AppCompatActivity {
         // Create an intent to switch activities to open the album
         Log.d(TAG, "Opened album: " + album.getName());
         Intent intent = new Intent(this, AlbumDetails.class);
-        intent.putExtra("album_object", album);
+        intent.putExtra("albumName", album.getName());
         startActivity(intent);
     }
 
