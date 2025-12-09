@@ -1,7 +1,5 @@
 package com.example.photosapplication;
 
-import static java.util.stream.Collectors.toList;
-
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,7 +9,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.PopupMenu;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,7 +17,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.photosapplication.model.Album;
-import com.example.photosapplication.model.UniqueList;
 import com.example.photosapplication.util.AppState;
 import com.example.photosapplication.util.StateManager;
 
@@ -68,6 +64,13 @@ public class Home extends AppCompatActivity {
         addAlbumsButton.setOnClickListener(v -> addAlbum());
 
         refreshView();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        PhotosApplication app = (PhotosApplication) getApplication();
+        StateManager.saveState(this, app.getAppState());
     }
 
     private void showAlbumsPopupMenu(View anchor, int position) {

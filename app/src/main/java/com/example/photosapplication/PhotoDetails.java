@@ -16,6 +16,7 @@ import com.example.photosapplication.model.Album;
 import com.example.photosapplication.model.Photo;
 import com.example.photosapplication.util.AppState;
 import com.example.photosapplication.util.ImageUtil;
+import com.example.photosapplication.util.StateManager;
 
 import java.io.File;
 import java.util.Objects;
@@ -60,6 +61,13 @@ public class PhotoDetails extends AppCompatActivity {
         previousButton = findViewById(R.id.previousButton);
         previousButton.setOnClickListener(v -> displayPreviousPhoto());
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        PhotosApplication app = (PhotosApplication) getApplication();
+        StateManager.saveState(this, app.getAppState());
     }
 
     private void displayPhoto(Photo photo) {

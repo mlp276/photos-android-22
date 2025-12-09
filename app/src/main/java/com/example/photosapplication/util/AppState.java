@@ -2,14 +2,13 @@ package com.example.photosapplication.util;
 
 import com.example.photosapplication.model.Album;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class AppState {
-    private List<Album> albums;
+    private final List<Album> albums;
 
     public AppState() {
-        albums = new ArrayList<>();
+        albums = new UniqueList<Album>();
     }
 
     public List<Album> getAlbums() {

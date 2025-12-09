@@ -1,11 +1,9 @@
 package com.example.photosapplication.model;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 
-import java.io.IOException;
-import java.io.InputStream;
+import com.example.photosapplication.util.UniqueList;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -14,7 +12,7 @@ import java.util.List;
  * This class provides functionality adding and removing tags to the photo.
  */
 public class Photo implements Serializable {
-    private final Uri uri;
+    private String uriString;
     private final List<Tag> tags;
     private final transient List<TagType> tagTypes;
 
@@ -28,7 +26,7 @@ public class Photo implements Serializable {
         if (uri == null) {
             throw new IllegalArgumentException("Uri does not exist");
         }
-        this.uri = uri;
+        setUri(uri);
         this.tags = new UniqueList<Tag>();
         this.tagTypes = new UniqueList<TagType>();
     }
@@ -43,16 +41,15 @@ public class Photo implements Serializable {
             return false;
         }
         Photo other = (Photo) o;
-        return uri.equals(other.getUri());
+        return getUri().equals(other.getUri());
     }
 
-    /**
-     * Gets the uri of the photo
-     *
-     * @return the uri of the photo
-     */
+    public void setUri(Uri uri) {
+        this.uriString = uri.toString();
+    }
+
     public Uri getUri() {
-        return uri;
+        return Uri.parse(uriString);
     }
 
     /**
