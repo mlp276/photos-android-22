@@ -1,4 +1,4 @@
-package com.example.photosapplication.model;
+package com.example.photosapplication.util;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.Collection;
  * based on the comparison of the elements in the list and the element to be added
  * based on the equals(Object o) method
  */
-public class UniqueList<E extends Serializable> extends ArrayList<E> {
+public class UniqueList<E> extends ArrayList<E> {
     
     /**
      * Adds the element to the list, making sure it is a unique element

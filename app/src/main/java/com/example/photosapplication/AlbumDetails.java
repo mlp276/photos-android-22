@@ -23,6 +23,7 @@ import com.example.photosapplication.model.Album;
 import com.example.photosapplication.model.Photo;
 import com.example.photosapplication.util.AppState;
 import com.example.photosapplication.util.PhotoAdapter;
+import com.example.photosapplication.util.StateManager;
 
 public class AlbumDetails extends AppCompatActivity {
     private static final String TAG = "AlbumDetails";
@@ -95,6 +96,13 @@ public class AlbumDetails extends AppCompatActivity {
                     }
                 }
         );
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        PhotosApplication app = (PhotosApplication) getApplication();
+        StateManager.saveState(this, app.getAppState());
     }
 
     private void addPhoto() {

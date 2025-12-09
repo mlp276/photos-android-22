@@ -1,5 +1,7 @@
 package com.example.photosapplication.model;
 
+import com.example.photosapplication.util.UniqueList;
+
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.List;
