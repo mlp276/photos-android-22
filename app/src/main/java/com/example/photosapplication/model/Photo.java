@@ -6,6 +6,7 @@ import com.example.photosapplication.util.UniqueList;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Photo - the photo of the application
@@ -123,5 +124,10 @@ public class Photo implements Serializable {
      */
     private TagType getTagType(String tagTypeName) {
         return tagTypes.stream().filter(tagType -> tagType.getName().equals(tagTypeName)).findFirst().orElse(null);
+    }
+
+    public boolean hasTag(Predicate<Tag> tagFilter) {
+        return tags.stream()
+                .anyMatch(tagFilter);
     }
 }

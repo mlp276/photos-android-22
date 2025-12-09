@@ -17,17 +17,23 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.photosapplication.model.Album;
+import com.example.photosapplication.model.Photo;
+import com.example.photosapplication.model.Tag;
+import com.example.photosapplication.model.TagType;
 import com.example.photosapplication.util.AppState;
 import com.example.photosapplication.util.StateManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class Home extends AppCompatActivity {
     private static final String TAG = "Home";
     private static final String[] options = {"Open Album", "Rename Album", "Remove Album"};
 
     List<Album> albums;
+    List<TagType> tagTypes;
     ListView albumListView;
     List<String> albumDisplayNames;
     Button addAlbumsButton;
@@ -47,6 +53,7 @@ public class Home extends AppCompatActivity {
         // Retrieve the saved state of the application
         AppState currentState = ((PhotosApplication) getApplication()).getAppState();
         albums = currentState.getAlbums();
+        tagTypes = currentState.getTagTypes();
 
         // Set the array adapter to the albums list view
         albumListView = findViewById(R.id.albumListView);
@@ -159,6 +166,44 @@ public class Home extends AppCompatActivity {
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    public List<Photo> searchPhotos(Predicate<Tag> tagFilter) {
+        return albums.stream()
+                .map(album -> album.searchPhotosInAlbum(tagFilter))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
+
+    public Predicate<Tag> hasOneTag(String tagType1, String tagValue1) {
+        Tag tagToFilter = new Tag(getTagType(tagType1), tagValue1);
+        return tag -> tag.equals(tagToFilter);
+    }
+
+    public Predicate<Tag> hasBothTags(String tagType1, String tagValue1, String tagType2, String tagValue2) {
+        Tag tag1 = new Tag(getTagType(tagType1), tagValue1);
+        Tag tag2 = new Tag(getTagType(tagType2), tagValue2);
+        Predicate<Tag> tagFilter1 = tag -> tag.equals(tag1);
+        Predicate<Tag> tagFilter2 = tag -> tag.equals(tag1);
+        return tagFilter1.and(tagFilter2);
+    }
+
+    public Predicate<Tag> hasEitherTag(String tagType1, String tagValue1, String tagType2, String tagValue2) {
+        Tag tag1 = new Tag(getTagType(tagType1), tagValue1);
+        Tag tag2 = new Tag(getTagType(tagType2), tagValue2);
+        Predicate<Tag> tagFilter1 = tag -> tag.equals(tag1);
+        Predicate<Tag> tagFilter2 = tag -> tag.equals(tag1);
+        return tagFilter1.or(tagFilter2);
+    }
+
+    /**
+     * Gets the tag type
+     *
+     * @param tagTypeName the tag type name
+     * @return the tag type with tag type name
+     */
+    public TagType getTagType(String tagTypeName) {
+        return tagTypes.stream().filter(tagType -> tagType.getName().equals(tagTypeName)).findFirst().orElse(null);
     }
 
     public void refreshView() {
