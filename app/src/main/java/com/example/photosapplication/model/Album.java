@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Album - the album to contain a set of photos for the user.
@@ -16,7 +17,7 @@ import java.util.function.Predicate;
 public class Album implements Serializable {
     private String name;
     private final List<Photo> photos;
-    
+
     /**
      * Instantiates the Album object
      * 
@@ -123,24 +124,16 @@ public class Album implements Serializable {
         return photos.size();
     }
 
-    /**
-     * Searches for photos in the album by the date range of the date taken
-     * 
-     * @param startDate the earliest date in the range to search photos
-     * @param endDate the latest date in the range to search photos
-     * @return a list of photos that lie within the range of date taken
-     */
-    public List<Photo> searchPhotosByDate(Calendar startDate, Calendar endDate) {
-        return null;
-    }
 
     /**
      * Searches for photos in the album by the presence of tags in the photo
-     * 
+     *
      * @param tagPredicate the predicate of checking the tags in the photo
      * @return a list of photos that contain the tags
      */
-    public List<Photo> searchPhotosByTag(Predicate<Tag> tagPredicate) {
-        return null;
+    public List<Photo> searchPhotosInAlbum(Predicate<Tag> tagPredicate) {
+        return photos.stream()
+                .filter(photo -> photo.hasTag(tagPredicate))
+                .collect(Collectors.toList());
     }
 }
