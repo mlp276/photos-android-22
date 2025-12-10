@@ -1,7 +1,5 @@
 package com.example.photosapplication.util;
 
-import static androidx.core.content.ContextCompat.startActivity;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -10,22 +8,25 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.photosapplication.AlbumDetails;
 import com.example.photosapplication.PhotoDetails;
+import com.example.photosapplication.PhotosApplication;
 import com.example.photosapplication.R;
 import com.example.photosapplication.model.Album;
 import com.example.photosapplication.model.Photo;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
     private static final String TAG = "PhotoAdapter";
-    private static final String[] options = {"Display Photo", "Remove Photo"};
+    private static final String[] options = {"Display Photo", "Remove Photo", "Move Photo"};
 
     private final Context context;
     private final Album album;
@@ -86,6 +87,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
                 case 1:
                     removePhoto(photo, position);
                     break;
+                case 2:
+                    showMovePhotoDialog(photo, position);
+                    break;
             }
         });
 
@@ -104,5 +108,33 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         album.removePhoto(photo);
         notifyItemRemoved(position);
         Log.d(TAG, "Successfully removed photo, album now has " + album.getPhotoCount() + " photos.");
+    }
+
+    private void showMovePhotoDialog(Photo photo, int position) {
+        PhotosApplication app = (PhotosApplication) context.getApplicationContext();
+        List<Album> otherAlbums = app.getAppState().getAlbums().stream()
+                .filter(a -> !a.equals(album))
+                .collect(Collectors.toList());
+
+        if (otherAlbums.isEmpty()) {
+            return; // No other albums to move to
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Move to Album");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1);
+        for (Album a : otherAlbums) {
+            adapter.add(a.getName());
+        }
+
+        builder.setAdapter(adapter, (dialog, which) -> {
+            Album destinationAlbum = otherAlbums.get(which);
+            destinationAlbum.addPhoto(photo);
+            album.removePhoto(photo);
+            notifyItemRemoved(position);
+        });
+
+        builder.show();
     }
 }
