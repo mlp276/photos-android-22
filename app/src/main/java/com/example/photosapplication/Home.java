@@ -19,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.photosapplication.model.Album;
 import com.example.photosapplication.model.TagType;
 import com.example.photosapplication.util.AppState;
+import com.example.photosapplication.util.SearchPhotoInputParameters;
 import com.example.photosapplication.util.StateManager;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class Home extends AppCompatActivity {
     Button addAlbumsButton;
     Button searchTagsButton;
     private ArrayAdapter<String> adapter;
+    private SearchPhotoInputParameters inputTagTypeParameters;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +64,7 @@ public class Home extends AppCompatActivity {
         addAlbumsButton.setOnClickListener(v -> addAlbum());
 
         searchTagsButton = findViewById(R.id.searchTagsButton);
-        searchTagsButton.setOnClickListener(v -> showSearchTagTypeDialog());
+        searchTagsButton.setOnClickListener(v -> showSearchNumberOfTagsDialog());
 
         refreshView();
     }
@@ -158,34 +160,126 @@ public class Home extends AppCompatActivity {
                 .show();
     }
 
-    private void showSearchTagTypeDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Search by Tag Type");
+    private void showSearchNumberOfTagsDialog() {
+        inputTagTypeParameters = new SearchPhotoInputParameters();
 
-        String[] tagTypes = {TagType.PERSON.getName(), TagType.LOCATION.getName()};
-        builder.setItems(tagTypes, (dialog, which) -> {
-            showSearchTagValueDialog(tagTypes[which]);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Search by Tag Type: Number of Tags");
+
+        String[] numberOfTags = {"1", "2"};
+        builder.setItems(numberOfTags, (dialog, which) -> {
+            showSearchTagTypeDialog(Integer.parseInt(numberOfTags[which]));
         });
 
         builder.show();
     }
 
-    private void showSearchTagValueDialog(String tagType) {
-        EditText input = new EditText(this);
-        input.setHint("Tag value");
+    public interface DialogCallback {
+        void onResult(String value);
+    }
 
-        new AlertDialog.Builder(this)
-                .setTitle("Search for " + tagType)
-                .setView(input)
-                .setPositiveButton("Search", (dialog, which) -> {
-                    String tagValue = input.getText().toString().trim();
-                    Intent intent = new Intent(this, SearchTagResults.class);
-                    intent.putExtra("tagType", tagType);
-                    intent.putExtra("tagValue", tagValue);
-                    startActivity(intent);
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+    public interface DialogResultCallback {
+        void onResult(boolean userAccepted);
+    }
+
+    public void showInputDialog(DialogCallback callback) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Enter Value");
+
+        final EditText input = new EditText(this);
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            callback.onResult(input.getText().toString());
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            callback.onResult(null);
+        });
+
+        builder.show();
+    }
+
+    public void requestUserConfirmationIfNeeded(boolean condition, DialogResultCallback callback) {
+        if (condition) {
+            callback.onResult(false);
+            return;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Search by Tag Type: Search Mode");
+        String[] searchModes = {"BOTH", "EITHER"};
+
+        builder.setItems(searchModes, (dialog, which) -> {
+            String searchModeString = searchModes[which];
+            if (searchModeString.equals("BOTH")) {
+                inputTagTypeParameters.searchMode = 2;
+            } else if (searchModeString.equals("EITHER")) {
+                inputTagTypeParameters.searchMode = 3;
+            }
+            callback.onResult(true);
+        });
+
+        builder.show();
+    }
+
+    private void showSearchTagTypeDialog(int numberOfTags) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Search by Tag Type");
+
+        String[] tagTypes = {TagType.PERSON.getName(), TagType.LOCATION.getName()};
+        builder.setItems(tagTypes, (dialog, which) -> {
+            if (inputTagTypeParameters.tagType1 == null) {
+                inputTagTypeParameters.tagType1 = tagTypes[which];
+            } else {
+                inputTagTypeParameters.tagType2 = tagTypes[which];
+            }
+            showSearchTagValueDialog(numberOfTags);
+        });
+
+        builder.show();
+    }
+
+    private void showSearchTagValueDialog(int numberOfTags) {
+        showInputDialog(tagValue -> {
+            Log.d(TAG, "tagValue: " + tagValue);
+            if (tagValue != null) {
+                if (inputTagTypeParameters.tagValue1 == null) {
+                    inputTagTypeParameters.tagValue1 = tagValue;
+                } else {
+                    inputTagTypeParameters.tagValue2 = tagValue;
+                }
+
+                if (numberOfTags > 1) {
+                    showSearchTagTypeDialog(numberOfTags - 1);
+                } else {
+                    showSearchTagSearchModeDialog();
+                }
+            }
+        });
+    }
+
+    private void showSearchTagSearchModeDialog() {
+        boolean condition = inputTagTypeParameters.tag2IsNull();
+        requestUserConfirmationIfNeeded(condition, result -> {
+            if (result) {
+                Intent intent = new Intent(this, SearchTagResults.class);
+                intent.putExtra("searchMode", inputTagTypeParameters.searchMode);
+                intent.putExtra("tagType1", inputTagTypeParameters.tagType1);
+                intent.putExtra("tagValue1", inputTagTypeParameters.tagValue1);
+                intent.putExtra("tagType2", inputTagTypeParameters.tagType2);
+                intent.putExtra("tagValue2", inputTagTypeParameters.tagValue2);
+                startActivity(intent);
+            } else {
+                Intent intent = new Intent(this, SearchTagResults.class);
+                intent.putExtra("searchMode", inputTagTypeParameters.searchMode);
+                intent.putExtra("tagType1", inputTagTypeParameters.tagType1);
+                intent.putExtra("tagValue1", inputTagTypeParameters.tagValue1);
+                intent.putExtra("tagType2", (Bundle) null);
+                intent.putExtra("tagValue2", (Bundle) null);
+                startActivity(intent);
+            }
+        });
     }
 
     public void refreshView() {
