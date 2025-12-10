@@ -1,5 +1,7 @@
 package com.example.photosapplication.model;
 
+import com.example.photosapplication.util.UniqueList;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +26,7 @@ public class Album implements Serializable {
      */
     public Album(String name) throws IllegalArgumentException {
         this.setName(name);
-        this.photos = new ArrayList<>();
+        this.photos = new UniqueList<Photo>();
     }
 
     public Album(String name, List<Photo> photos) throws IllegalArgumentException {

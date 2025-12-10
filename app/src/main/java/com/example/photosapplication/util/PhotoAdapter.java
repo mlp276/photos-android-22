@@ -90,7 +90,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
                     removePhoto(photo, position);
                     break;
                 case 2:
-                    showMovePhotoDialog(photo, position);
+                    movePhoto(photo, position);
                     break;
             }
         });
@@ -123,7 +123,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         Log.d(TAG, "Successfully removed photo.");
     }
 
-    private void showMovePhotoDialog(Photo photo, int position) {
+    private void movePhoto(Photo photo, int position) {
         PhotosApplication app = (PhotosApplication) context.getApplicationContext();
         Album sourceAlbum = app.getAppState().getAlbumOfPhoto(photo);
 
@@ -132,7 +132,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
                 .collect(Collectors.toList());
 
         if (otherAlbums.isEmpty()) {
-            return; // No other albums to move to
+            return;
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -145,7 +145,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
         builder.setAdapter(adapter, (dialog, which) -> {
             Album destinationAlbum = otherAlbums.get(which);
-            destinationAlbum.addPhoto(photo);
+            if (!destinationAlbum.addPhoto(photo)) {
+                return;
+            }
             if (sourceAlbum != null) {
                 sourceAlbum.removePhoto(photo);
             }
