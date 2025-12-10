@@ -62,15 +62,19 @@ public class SearchTagResults extends AppCompatActivity {
     }
 
     private List<Photo> searchPhotos(AppState appState, String tagType, String tagValue) {
-        if (tagType == null || tagValue == null) {
+        if (tagType == null || tagValue == null || tagValue.trim().isEmpty()) {
             return new ArrayList<>();
         }
 
-        Predicate<Tag> filter = tag -> tag.getType().getName().equalsIgnoreCase(tagType) && tag.getValue().equalsIgnoreCase(tagValue);
+        String lowerCaseTagValue = tagValue.toLowerCase();
+
+        Predicate<Tag> filter = tag -> tag.getType().getName().equalsIgnoreCase(tagType) &&
+                                     tag.getValue().toLowerCase().startsWith(lowerCaseTagValue);
 
         return appState.getAlbums().stream()
                 .flatMap(album -> album.getPhotos().stream())
                 .filter(photo -> photo.hasTag(filter))
+                .distinct()
                 .collect(Collectors.toList());
     }
 }
