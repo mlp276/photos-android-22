@@ -5,8 +5,8 @@ import java.io.Serializable;
 public final class TagType implements Serializable {
     static long serialVersionUID = 1L;
 
-    public static final TagType PERSON = new TagType("person", true);
-    public static final TagType LOCATION = new TagType("location", false);
+    public static final TagType PERSON = new TagType("Person", true);
+    public static final TagType LOCATION = new TagType("Location", false);
 
     private final String name;
     private final boolean multiValued;

@@ -39,6 +39,7 @@ public class PhotoDetails extends AppCompatActivity {
     Button nextButton;
     Button previousButton;
     Button addTagButton;
+    Button removeTagButton;
     Flow tagsFlow;
     private List<View> tagViews = new ArrayList<>();
 
@@ -70,6 +71,8 @@ public class PhotoDetails extends AppCompatActivity {
 
         addTagButton = findViewById(R.id.addTagButton);
         addTagButton.setOnClickListener(this::showAddTagPopup);
+        removeTagButton = findViewById(R.id.removeTagButton);
+        removeTagButton.setOnClickListener(this::showRemoveTagPopup);
         tagsFlow = findViewById(R.id.tagsFlow);
         refreshTags();
     }
@@ -137,22 +140,43 @@ public class PhotoDetails extends AppCompatActivity {
                 .show();
     }
 
+    private void showRemoveTagPopup(View view) {
+        if (photo.getTags() == null || photo.getTags().isEmpty()) {
+            return;
+        }
+
+        PopupMenu popup = new PopupMenu(this, view);
+        for (Tag tag : photo.getTags()) {
+            popup.getMenu().add(tag.toString());
+        }
+
+        popup.setOnMenuItemClickListener(item -> {
+            String selectedTag = item.getTitle().toString();
+            String[] parts = selectedTag.split(": ");
+            photo.removeTag(parts[0], parts[1]);
+            refreshTags();
+            return true;
+        });
+
+        popup.show();
+    }
+
     private void refreshTags() {
         ConstraintLayout layout = findViewById(R.id.main);
 
-        // Remove old tag views from the layout and clear the list
         for (View view : tagViews) {
             layout.removeView(view);
         }
         tagViews.clear();
 
-        // If there are no tags, we're done
         if (photo.getTags() == null || photo.getTags().isEmpty()) {
             tagsFlow.setReferencedIds(new int[0]);
+            removeTagButton.setEnabled(false);
             return;
         }
 
-        // Create new TextViews for each tag, add them to the layout, and collect their IDs
+        removeTagButton.setEnabled(true);
+
         int[] tagViewIds = new int[photo.getTags().size()];
         for (int i = 0; i < photo.getTags().size(); i++) {
             Tag tag = photo.getTags().get(i);
@@ -165,7 +189,6 @@ public class PhotoDetails extends AppCompatActivity {
             tagViewIds[i] = tagView.getId();
         }
 
-        // Update the Flow helper to reference the new tag views
         tagsFlow.setReferencedIds(tagViewIds);
     }
 }
