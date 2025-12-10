@@ -2,9 +2,8 @@ package com.example.photosapplication.model;
 
 import android.net.Uri;
 
-import com.example.photosapplication.util.UniqueList;
-
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -15,11 +14,10 @@ import java.util.function.Predicate;
 public class Photo implements Serializable {
     private String uriString;
     private final List<Tag> tags;
-    private final transient List<TagType> tagTypes;
 
     /**
      * Initializes the Photo object given the uri
-     * 
+     *
      * @param uri the uri of the photo referenced
      * @throws IllegalArgumentException the uri is null
      */
@@ -28,13 +26,12 @@ public class Photo implements Serializable {
             throw new IllegalArgumentException("Uri does not exist");
         }
         setUri(uri);
-        this.tags = new UniqueList<Tag>();
-        this.tagTypes = new UniqueList<TagType>();
+        this.tags = new ArrayList<>();
     }
 
     /**
      * Compares the two Photo objects by their uri paths
-     * 
+     *
      * @return a boolean value comparing the two objects
      */
     public boolean equals(Object o) {
@@ -55,28 +52,23 @@ public class Photo implements Serializable {
 
     /**
      * Add a tag to this photo. If the tag's type is single-valued, any existing
-     * tag of the same type will be replaced. If the tag type is not registered,
-     * it will be auto-registered as multi-valued.
+     * tag of the same type will be replaced.
      *
      * @param typeName tag type name (e.g., "location" or "person")
-     * @param value tag value (e.g., "New Brunswick")
+     * @param value    tag value (e.g., "New Brunswick")
      * @return true if the photo was changed (tag added or replaced)
-     * @throws Exception the tag type name and value are null
+     * @throws Exception the tag type name and value are null or the type is not defined
      */
     public boolean addTag(String typeName, String value) throws Exception {
         if (typeName == null || value == null) {
             throw new IllegalArgumentException("Tag type and value are not provided.");
         }
 
-        /* Determines if the tag with the type can be added for the user */
         TagType type = getTagType(typeName);
         if (type == null) {
             throw new Exception("The tag type is not defined.");
         }
 
-        /* For single-valued types, remove any existing tag of the same type;
-         * otherwise, for multi-valued types, just add the tag to the photo
-         */
         if (!type.isMultiValued()) {
             tags.removeIf(tag -> tag.getType().getName().equalsIgnoreCase(type.getName()));
         }
@@ -87,7 +79,7 @@ public class Photo implements Serializable {
 
     /**
      * Remove a specific (type, value) tag from the photo.
-     * 
+     *
      * @return true if removed
      */
     public boolean removeTag(String tagTypeName, String value) {
@@ -99,31 +91,23 @@ public class Photo implements Serializable {
     }
 
     /**
-     * Initializes the tag types of the user
-     */
-    private void initializeTagTypes() {
-        addTagType("location", false);
-        addTagType("person", true);
-    }
-
-    /**
-     * Add a tag type of the user
-     *
-     * @param tagTypeName the name of the tag type
-     * @param multiValued whether the tag type will have multiple values associated with it
-     */
-    private void addTagType(String tagTypeName, boolean multiValued) {
-        tagTypes.add(new TagType(tagTypeName, multiValued));
-    }
-
-    /**
-     * Gets the tag type
+     * Gets the tag type from the predefined set of tag types.
      *
      * @param tagTypeName the tag type name
-     * @return the tag type with tag type name
+     * @return the tag type with tag type name, or null if not found
      */
     private TagType getTagType(String tagTypeName) {
-        return tagTypes.stream().filter(tagType -> tagType.getName().equals(tagTypeName)).findFirst().orElse(null);
+        if (TagType.PERSON.getName().equalsIgnoreCase(tagTypeName)) {
+            return TagType.PERSON;
+        }
+        if (TagType.LOCATION.getName().equalsIgnoreCase(tagTypeName)) {
+            return TagType.LOCATION;
+        }
+        return null;
+    }
+
+    public List<Tag> getTags() {
+        return tags;
     }
 
     public boolean hasTag(Predicate<Tag> tagFilter) {
