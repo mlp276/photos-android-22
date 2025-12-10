@@ -17,26 +17,22 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.photosapplication.model.Album;
-import com.example.photosapplication.model.Photo;
-import com.example.photosapplication.model.Tag;
 import com.example.photosapplication.model.TagType;
 import com.example.photosapplication.util.AppState;
 import com.example.photosapplication.util.StateManager;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class Home extends AppCompatActivity {
     private static final String TAG = "Home";
     private static final String[] options = {"Open Album", "Rename Album", "Remove Album"};
 
     List<Album> albums;
-    List<TagType> tagTypes;
     ListView albumListView;
     List<String> albumDisplayNames;
     Button addAlbumsButton;
+    Button searchTagsButton;
     private ArrayAdapter<String> adapter;
 
     @Override
@@ -50,25 +46,23 @@ public class Home extends AppCompatActivity {
             return insets;
         });
 
-        // Retrieve the saved state of the application
         AppState currentState = ((PhotosApplication) getApplication()).getAppState();
         albums = currentState.getAlbums();
-        tagTypes = currentState.getTagTypes();
 
-        // Set the array adapter to the albums list view
         albumListView = findViewById(R.id.albumListView);
         albumDisplayNames = new ArrayList<String>();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, albumDisplayNames);
         albumListView.setAdapter(adapter);
 
-        // Provide functionality to each item of the list of albums
         albumListView.setOnItemClickListener((parent, view, position, id) -> {
             showAlbumsPopupMenu(view, position);
         });
 
-        // Provide functionality to the 'Add Album' button
         addAlbumsButton = findViewById(R.id.addAlbumsButton);
         addAlbumsButton.setOnClickListener(v -> addAlbum());
+
+        searchTagsButton = findViewById(R.id.searchTagsButton);
+        searchTagsButton.setOnClickListener(v -> showSearchTagTypeDialog());
 
         refreshView();
     }
@@ -107,7 +101,6 @@ public class Home extends AppCompatActivity {
         EditText input = new EditText(this);
         input.setText(album.getName());
 
-        // Initialize the alert dialog to prompt for renaming the album
         new AlertDialog.Builder(this)
                 .setTitle("Rename Album")
                 .setView(input)
@@ -123,7 +116,6 @@ public class Home extends AppCompatActivity {
     }
 
     private void removeAlbum(Album album) {
-        // Initialize the alert dialog to prompt confirmation of album removal
         new AlertDialog.Builder(this)
                 .setTitle("Confirm Deletion")
                 .setMessage("Are you sure you want to delete this album?")
@@ -137,7 +129,6 @@ public class Home extends AppCompatActivity {
     }
 
     private void openAlbum(Album album) {
-        // Create an intent to switch activities to open the album
         Log.d(TAG, "Opened album: " + album.getName());
         Intent intent = new Intent(this, AlbumDetails.class);
         intent.putExtra("albumName", album.getName());
@@ -148,7 +139,6 @@ public class Home extends AppCompatActivity {
         EditText input = new EditText(this);
         input.setHint("Album name");
 
-        // Initialize the alert dialog to prompt for the new album
         new AlertDialog.Builder(this)
                 .setTitle("Add New Album")
                 .setView(input)
@@ -168,46 +158,37 @@ public class Home extends AppCompatActivity {
                 .show();
     }
 
-    public List<Photo> searchPhotos(Predicate<Tag> tagFilter) {
-        return albums.stream()
-                .map(album -> album.searchPhotosInAlbum(tagFilter))
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
+    private void showSearchTagTypeDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Search by Tag Type");
+
+        String[] tagTypes = {TagType.PERSON.getName(), TagType.LOCATION.getName()};
+        builder.setItems(tagTypes, (dialog, which) -> {
+            showSearchTagValueDialog(tagTypes[which]);
+        });
+
+        builder.show();
     }
 
-    public Predicate<Tag> hasOneTag(String tagType1, String tagValue1) {
-        Tag tagToFilter = new Tag(getTagType(tagType1), tagValue1);
-        return tag -> tag.equals(tagToFilter);
-    }
+    private void showSearchTagValueDialog(String tagType) {
+        EditText input = new EditText(this);
+        input.setHint("Tag value");
 
-    public Predicate<Tag> hasBothTags(String tagType1, String tagValue1, String tagType2, String tagValue2) {
-        Tag tag1 = new Tag(getTagType(tagType1), tagValue1);
-        Tag tag2 = new Tag(getTagType(tagType2), tagValue2);
-        Predicate<Tag> tagFilter1 = tag -> tag.equals(tag1);
-        Predicate<Tag> tagFilter2 = tag -> tag.equals(tag1);
-        return tagFilter1.and(tagFilter2);
-    }
-
-    public Predicate<Tag> hasEitherTag(String tagType1, String tagValue1, String tagType2, String tagValue2) {
-        Tag tag1 = new Tag(getTagType(tagType1), tagValue1);
-        Tag tag2 = new Tag(getTagType(tagType2), tagValue2);
-        Predicate<Tag> tagFilter1 = tag -> tag.equals(tag1);
-        Predicate<Tag> tagFilter2 = tag -> tag.equals(tag1);
-        return tagFilter1.or(tagFilter2);
-    }
-
-    /**
-     * Gets the tag type
-     *
-     * @param tagTypeName the tag type name
-     * @return the tag type with tag type name
-     */
-    public TagType getTagType(String tagTypeName) {
-        return tagTypes.stream().filter(tagType -> tagType.getName().equals(tagTypeName)).findFirst().orElse(null);
+        new AlertDialog.Builder(this)
+                .setTitle("Search for " + tagType)
+                .setView(input)
+                .setPositiveButton("Search", (dialog, which) -> {
+                    String tagValue = input.getText().toString().trim();
+                    Intent intent = new Intent(this, SearchResultsActivity.class);
+                    intent.putExtra("tagType", tagType);
+                    intent.putExtra("tagValue", tagValue);
+                    startActivity(intent);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     public void refreshView() {
-        // Refresh the view after a change in the albums list
         albumDisplayNames.clear();
         for (Album a : albums) {
             albumDisplayNames.add(a.getName());

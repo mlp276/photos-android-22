@@ -30,10 +30,12 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     private final Context context;
     private final Album album;
+    private final List<Photo> photos;
 
     public PhotoAdapter(Context context, Album album) {
         this.context = context;
         this.album = album;
+        this.photos = album.getPhotos();
     }
 
     @NonNull
@@ -46,7 +48,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     @Override
     public void onBindViewHolder(@NonNull PhotoViewHolder holder, int position) {
-        Photo photo = album.getPhoto(position);
+        Photo photo = photos.get(position);
 
         Bitmap bmp = null;
         try {
@@ -63,7 +65,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     @Override
     public int getItemCount() {
-        return album.getPhotoCount();
+        return photos.size();
     }
 
     public static class PhotoViewHolder extends RecyclerView.ViewHolder {
@@ -99,21 +101,31 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     private void displayPhoto(Photo photo, int position) {
         Log.d(TAG, "Opened photo: " + photo.getUri());
         Intent intent = new Intent(context, PhotoDetails.class);
-        intent.putExtra("albumName", album.getName());
-        intent.putExtra("photoPosition", position);
+        if (album != null && !"Search Results".equals(album.getName())) {
+            intent.putExtra("albumName", album.getName());
+            intent.putExtra("photoPosition", position);
+        } else {
+            intent.putExtra("photoUri", photo.getUri().toString());
+        }
         context.startActivity(intent);
     }
 
     private void removePhoto(Photo photo, int position) {
-        album.removePhoto(photo);
-        notifyItemRemoved(position);
-        Log.d(TAG, "Successfully removed photo, album now has " + album.getPhotoCount() + " photos.");
+        PhotosApplication app = (PhotosApplication) context.getApplicationContext();
+        app.getAppState().getAlbumOfPhoto(photo).removePhoto(photo);
+        if (album != null && "Search Results".equals(album.getName())) {
+            photos.remove(photo);
+        }
+        notifyDataSetChanged();
+        Log.d(TAG, "Successfully removed photo.");
     }
 
     private void showMovePhotoDialog(Photo photo, int position) {
         PhotosApplication app = (PhotosApplication) context.getApplicationContext();
+        Album sourceAlbum = app.getAppState().getAlbumOfPhoto(photo);
+
         List<Album> otherAlbums = app.getAppState().getAlbums().stream()
-                .filter(a -> !a.equals(album))
+                .filter(a -> !a.equals(sourceAlbum))
                 .collect(Collectors.toList());
 
         if (otherAlbums.isEmpty()) {
@@ -131,8 +143,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         builder.setAdapter(adapter, (dialog, which) -> {
             Album destinationAlbum = otherAlbums.get(which);
             destinationAlbum.addPhoto(photo);
-            album.removePhoto(photo);
-            notifyItemRemoved(position);
+            if (sourceAlbum != null) {
+                sourceAlbum.removePhoto(photo);
+            }
+            if (album != null && "Search Results".equals(album.getName())) {
+                photos.remove(photo);
+            }
+            notifyDataSetChanged();
         });
 
         builder.show();
