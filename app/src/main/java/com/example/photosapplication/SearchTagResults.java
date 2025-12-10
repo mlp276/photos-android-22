@@ -92,6 +92,7 @@ public class SearchTagResults extends AppCompatActivity {
         return appState.getAlbums().stream()
                 .flatMap(album -> album.getPhotos().stream())
                 .filter(photoFilter)
+                .distinct()
                 .collect(Collectors.toList());
     }
 
