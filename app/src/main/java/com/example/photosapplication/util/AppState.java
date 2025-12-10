@@ -1,10 +1,9 @@
 package com.example.photosapplication.util;
 
-import android.util.Log;
-
 import com.example.photosapplication.model.Album;
 import com.example.photosapplication.model.TagType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AppState {
@@ -13,30 +12,17 @@ public class AppState {
     private transient final List<TagType> tagTypes;
 
     public AppState() {
-        albums = new UniqueList<Album>();
-        tagTypes = new UniqueList<TagType>();
+        albums = new ArrayList<>();
+        tagTypes = new ArrayList<>();
         initializeTagTypes();
     }
 
     /**
-     * Initializes the tag types of the user
+     * Initializes the predefined tag types.
      */
     private void initializeTagTypes() {
-        if (!(addTagType("location", false) &&
-        addTagType("person", true))) {
-            Log.e(TAG, "Failed to load in the tag types.");
-        }
-    }
-
-    /**
-     * Add a tag type of the user
-     *
-     * @param tagTypeName the name of the tag type
-     * @param multiValued whether the tag type will have multiple values associated with it
-     * @return true if the tag type is successfully added
-     */
-    public boolean addTagType(String tagTypeName, boolean multiValued) {
-        return tagTypes.add(new TagType(tagTypeName, multiValued));
+        tagTypes.add(TagType.LOCATION);
+        tagTypes.add(TagType.PERSON);
     }
 
     public List<Album> getAlbums() {
