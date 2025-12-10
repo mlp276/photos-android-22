@@ -179,7 +179,7 @@ public class Home extends AppCompatActivity {
                 .setView(input)
                 .setPositiveButton("Search", (dialog, which) -> {
                     String tagValue = input.getText().toString().trim();
-                    Intent intent = new Intent(this, SearchResultsActivity.class);
+                    Intent intent = new Intent(this, SearchTagResults.class);
                     intent.putExtra("tagType", tagType);
                     intent.putExtra("tagValue", tagValue);
                     startActivity(intent);

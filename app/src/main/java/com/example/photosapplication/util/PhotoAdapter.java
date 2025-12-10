@@ -112,7 +112,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     private void removePhoto(Photo photo, int position) {
         PhotosApplication app = (PhotosApplication) context.getApplicationContext();
-        app.getAppState().getAlbumOfPhoto(photo).removePhoto(photo);
+        Album sourceAlbum = app.getAppState().getAlbumOfPhoto(photo);
+        if (sourceAlbum != null) {
+            sourceAlbum.removePhoto(photo);
+        }
         if (album != null && "Search Results".equals(album.getName())) {
             photos.remove(photo);
         }
