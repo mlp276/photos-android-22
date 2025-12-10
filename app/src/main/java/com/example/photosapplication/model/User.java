@@ -37,33 +37,10 @@ public class User implements Serializable {
      * Initializes the tag types of the user
      */
     private void initializeTagTypes() {
-        addTagType("location", false);
-        addTagType("person", true);
+        tagTypes.add(TagType.LOCATION);
+        tagTypes.add(TagType.PERSON);
     }
 
-    /**
-     * Add a tag type of the user
-     * 
-     * @param tagTypeName the name of the tag type
-     * @param multiValued whether the tag type will have multiple values associated with it
-     * @return true if the tag type is successfully added
-     */
-    public boolean addTagType(String tagTypeName, boolean multiValued) {
-        return tagTypes.add(new TagType(tagTypeName, multiValued));
-    }
-
-    /**
-     * Remove a tag type of the user
-     * 
-     * @param tagTypeName the name of the tag type
-     * @return true if the tag type is successfully removed
-     */
-    public boolean removeTagType(String tagTypeName) {
-        TagType type = getTagType(tagTypeName);
-        if (type == null) return false;
-        return tagTypes.remove(type);
-    }
-    
     /**
      * Gets a list of tag types
      * 
@@ -81,6 +58,28 @@ public class User implements Serializable {
      */
     public TagType getTagType(String tagTypeName) {
         return tagTypes.stream().filter(tagType -> tagType.getName().equals(tagTypeName)).findFirst().orElse(null);
+    }
+
+    /**
+     * Adds a tag type for the user.
+     * Note: Tag types are restricted to the predefined types in TagType.
+     * 
+     * @param tagType the tag type to add (e.g., TagType.PERSON)
+     * @return true if the tag type was added
+     */
+    public boolean addTagType(TagType tagType) {
+        return tagTypes.add(tagType);
+    }
+
+    /**
+     * Removes a tag type from the user.
+     * Note: Tag types are restricted to the predefined types in TagType.
+     * 
+     * @param tagType the tag type to remove (e.g., TagType.LOCATION)
+     * @return true if the tag type was removed
+     */
+    public boolean removeTagType(TagType tagType) {
+        return tagTypes.remove(tagType);
     }
 
     /**

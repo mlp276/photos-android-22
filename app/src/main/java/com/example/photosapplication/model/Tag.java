@@ -1,6 +1,9 @@
 package com.example.photosapplication.model;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Represents a tag: an immutable (type, value) pair.
@@ -12,6 +15,8 @@ import java.io.Serializable;
  */
 public class Tag implements Serializable {
     static long serialVersionUID = 1L;
+
+    private static final Set<String> ALLOWED_TAG_TYPES = new HashSet<>(Arrays.asList("person", "location"));
     
     private TagType type;
     private String value;
@@ -26,6 +31,9 @@ public class Tag implements Serializable {
     public Tag(TagType type, String value) {
         if (type == null) throw new IllegalArgumentException("type cannot be null");
         if (value == null) throw new IllegalArgumentException("value cannot be null");
+        if (!ALLOWED_TAG_TYPES.contains(type.getName().toLowerCase())) {
+            throw new IllegalArgumentException("Only 'person' and 'location' tag types are allowed.");
+        }
         this.type = type;
         this.value = value.trim();
     }

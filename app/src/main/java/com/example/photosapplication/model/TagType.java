@@ -4,32 +4,34 @@ import java.io.Serializable;
 
 /**
  * Represents a tag type (e.g., "location" or "person").
- * Tag types are registered in a global registry so users can pick from presets
- * and define new types at runtime.
- * 
+ * The allowed tag types are predefined as static constants.
+ *
  * Each tag type has a name and a flag indicating whether multiple values
  * are allowed for the same photo (multi-valued) or just one (single-valued).
  */
-public class TagType implements Serializable {
+public final class TagType implements Serializable {
     static long serialVersionUID = 1L;
-    
-    private String name;
-    private boolean multiValued;
+
+    public static final TagType PERSON = new TagType("person", true);
+    public static final TagType LOCATION = new TagType("location", false);
+
+    private final String name;
+    private final boolean multiValued;
 
     /**
-     * Initializes the tag type
-     * 
+     * Private constructor for predefined tag types.
+     *
      * @param name the name of the tag type
      * @param multiValued whether the tag type will have multiple values associated
      */
-    public TagType(String name, boolean multiValued) {
+    private TagType(String name, boolean multiValued) {
         this.name = name;
         this.multiValued = multiValued;
     }
 
     /**
-     * Gets the name of the tag type
-     * 
+     * Gets the name of the tag type.
+     *
      * @return the name of the tag type
      */
     public String getName() {
@@ -37,33 +39,45 @@ public class TagType implements Serializable {
     }
 
     /**
-     * Gets the indication of whether the tag will be multivalued
-     * 
-     * @return whether the tag will be multivalued
+     * Returns true if this tag type supports multiple values for a single photo.
+     *
+     * @return true if multi-valued, false otherwise
      */
     public boolean isMultiValued() {
         return multiValued;
     }
 
     /**
-     * Compares the two tag objects by their name
-     * 
-     * @returns a boolean value indicating comparison of the two objects
+     * Compares this TagType to another object for equality.
+     *
+     * @param o the object to compare to
+     * @return true if the objects are equal, false otherwise
      */
+    @Override
     public boolean equals(Object o) {
-        if (o == null || !(o instanceof TagType)) {
-            return false;
-        }
-        TagType other = (TagType) o;
-        return this.name.equalsIgnoreCase(other.getName());
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TagType tagType = (TagType) o;
+        return name.equalsIgnoreCase(tagType.name);
     }
 
     /**
-     * Returns the string representation of the Tag Type
-     * 
-     * @return the string representation of the tag
+     * Returns a hash code value for the object.
+     *
+     * @return a hash code value for this object.
      */
+    @Override
+    public int hashCode() {
+        return name.toLowerCase().hashCode();
+    }
+
+    /**
+     * Returns the string representation of the TagType, which is its name.
+     *
+     * @return the name of the tag type
+     */
+    @Override
     public String toString() {
-        return name + ", multiValued=" + multiValued;
+        return name;
     }
 }
