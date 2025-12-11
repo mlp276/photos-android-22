@@ -1,3 +1,20 @@
+# NOTES BEFORE EXECUTING APPLICATION
+We used the Gson module from Google in order to save sessions between closing the app. We also used RecyclerView for displaying the photos in the album. <br>
+So for the build.gradle.kts for the app module, make sure that the following dependencies are included in the project:
+```
+dependencies {
+    implementation(libs.appcompat)
+    implementation(libs.material)
+    implementation(libs.activity)
+    implementation(libs.constraintlayout)
+    implementation(libs.recyclerview)
+    implementation("com.google.code.gson:gson:2.13.2") // USE GSON 2.13.2 FOR THE PROJECT
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
+}
+```
+
 # Miguel Pagador AI used: ChatGPT
 
 ## How I used the GenAI
