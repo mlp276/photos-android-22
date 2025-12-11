@@ -112,9 +112,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     private void removePhoto(Photo photo, int position) {
         PhotosApplication app = (PhotosApplication) context.getApplicationContext();
-        Album sourceAlbum = app.getAppState().getAlbumOfPhoto(photo);
-        if (sourceAlbum != null) {
-            sourceAlbum.removePhoto(photo);
+        if (album != null) {
+            album.removePhoto(photo);
         }
         if (album != null && "Search Results".equals(album.getName())) {
             photos.remove(photo);
@@ -125,10 +124,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     private void movePhoto(Photo photo, int position) {
         PhotosApplication app = (PhotosApplication) context.getApplicationContext();
-        Album sourceAlbum = app.getAppState().getAlbumOfPhoto(photo);
+
 
         List<Album> otherAlbums = app.getAppState().getAlbums().stream()
-                .filter(a -> !a.equals(sourceAlbum))
+                .filter(a -> !a.equals(album))
                 .collect(Collectors.toList());
 
         if (otherAlbums.isEmpty()) {
@@ -148,8 +147,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
             if (!destinationAlbum.addPhoto(photo)) {
                 return;
             }
-            if (sourceAlbum != null) {
-                sourceAlbum.removePhoto(photo);
+            if (album != null) {
+                album.removePhoto(photo);
             }
             if (album != null && "Search Results".equals(album.getName())) {
                 photos.remove(photo);
