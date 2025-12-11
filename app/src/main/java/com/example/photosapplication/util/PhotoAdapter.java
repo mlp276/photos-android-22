@@ -125,7 +125,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     private void movePhoto(Photo photo, int position) {
         PhotosApplication app = (PhotosApplication) context.getApplicationContext();
 
-
         List<Album> otherAlbums = app.getAppState().getAlbums().stream()
                 .filter(a -> !a.equals(album))
                 .collect(Collectors.toList());
@@ -144,7 +143,14 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
         builder.setAdapter(adapter, (dialog, which) -> {
             Album destinationAlbum = otherAlbums.get(which);
-            if (!destinationAlbum.addPhoto(photo)) {
+            for (Photo photo1 : destinationAlbum.getPhotos()) {
+                if (photo1.equals(photo)) {
+                    return;
+                }
+            }
+
+            boolean res = destinationAlbum.addPhoto(photo);
+            if (!res) {
                 return;
             }
             if (album != null) {

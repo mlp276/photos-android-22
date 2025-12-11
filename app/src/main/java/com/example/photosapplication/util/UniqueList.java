@@ -1,5 +1,7 @@
 package com.example.photosapplication.util;
 
+import android.util.Log;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,6 +22,7 @@ public class UniqueList<E> extends ArrayList<E> {
      */
     public boolean add(E e) {
         if (this.contains(e)) {
+            Log.d("UniqueList", "Duplicate!");
             return false;
         }
         return super.add(e);

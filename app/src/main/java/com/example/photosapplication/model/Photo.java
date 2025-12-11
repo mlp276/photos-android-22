@@ -1,6 +1,7 @@
 package com.example.photosapplication.model;
 
 import android.net.Uri;
+import android.util.Log;
 
 import com.example.photosapplication.util.UniqueList;
 
@@ -41,7 +42,12 @@ public class Photo implements Serializable {
             return false;
         }
         Photo other = (Photo) o;
-        return getUri().equals(other.getUri());
+        String uri = getUri().toString();
+        String otheruri = other.getUri().toString();
+        Log.d("Photo", uri);
+        Log.d("Photo", otheruri);
+        Log.d("Photo", Boolean.toString(uri.equals(otheruri)));
+        return uri.equals(otheruri);
     }
 
     public void setUri(Uri uri) {
