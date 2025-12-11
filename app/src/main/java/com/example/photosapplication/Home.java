@@ -21,6 +21,7 @@ import com.example.photosapplication.model.TagType;
 import com.example.photosapplication.util.AppState;
 import com.example.photosapplication.util.SearchPhotoInputParameters;
 import com.example.photosapplication.util.StateManager;
+import com.example.photosapplication.util.UniqueList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +54,7 @@ public class Home extends AppCompatActivity {
         albums = currentState.getAlbums();
 
         albumListView = findViewById(R.id.albumListView);
-        albumDisplayNames = new ArrayList<String>();
+        albumDisplayNames = new UniqueList<String>();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, albumDisplayNames);
         albumListView.setAdapter(adapter);
 

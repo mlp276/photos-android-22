@@ -2,6 +2,8 @@ package com.example.photosapplication.model;
 
 import android.net.Uri;
 
+import com.example.photosapplication.util.UniqueList;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +28,7 @@ public class Photo implements Serializable {
             throw new IllegalArgumentException("Uri does not exist");
         }
         setUri(uri);
-        this.tags = new ArrayList<>();
+        this.tags = new UniqueList<Tag>();
     }
 
     /**

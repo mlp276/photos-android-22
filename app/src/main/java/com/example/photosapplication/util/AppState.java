@@ -17,8 +17,8 @@ public class AppState {
     private transient final List<TagType> tagTypes;
 
     public AppState() {
-        albums = new ArrayList<>();
-        tagTypes = new ArrayList<>();
+        albums = new UniqueList<>();
+        tagTypes = new UniqueList<>();
         initializeTagTypes();
     }
 
