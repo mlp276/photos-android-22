@@ -1,6 +1,7 @@
 package com.example.photosapplication;
 
 import android.app.AlertDialog;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -54,20 +55,35 @@ public class PhotoDetails extends AppCompatActivity {
             return insets;
         });
 
-        String albumName = getIntent().getStringExtra("albumName");
-        position = getIntent().getIntExtra("photoPosition", 0);
         currentState = ((PhotosApplication) getApplication()).getAppState();
-        album = currentState.getAlbumByName(albumName);
-        photo = album.getPhoto(position);
+        String albumName = getIntent().getStringExtra("albumName");
+
+        if (albumName != null) {
+            // Opened from an album
+            position = getIntent().getIntExtra("photoPosition", 0);
+            album = currentState.getAlbumByName(albumName);
+            photo = album.getPhoto(position);
+        } else {
+            // Opened from search results
+            String photoUriString = getIntent().getStringExtra("photoUri");
+            Uri photoUri = Uri.parse(photoUriString);
+            photo = currentState.getPhotoByUri(photoUri);
+            album = null; // No album context
+        }
 
         displayedPhotoImageview = findViewById(R.id.displayedPhotoImageview);
         photoTitleTextView = findViewById(R.id.photoTitleTextView);
         displayPhoto(photo);
 
         nextButton = findViewById(R.id.nextButton);
-        nextButton.setOnClickListener(v -> displayNextPhoto());
         previousButton = findViewById(R.id.previousButton);
-        previousButton.setOnClickListener(v -> displayPreviousPhoto());
+        if (album == null) {
+            nextButton.setVisibility(View.GONE);
+            previousButton.setVisibility(View.GONE);
+        } else {
+            nextButton.setOnClickListener(v -> displayNextPhoto());
+            previousButton.setOnClickListener(v -> displayPreviousPhoto());
+        }
 
         addTagButton = findViewById(R.id.addTagButton);
         addTagButton.setOnClickListener(this::showAddTagPopup);

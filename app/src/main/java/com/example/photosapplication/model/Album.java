@@ -3,7 +3,7 @@ package com.example.photosapplication.model;
 import com.example.photosapplication.util.UniqueList;
 
 import java.io.Serializable;
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -20,7 +20,7 @@ public class Album implements Serializable {
 
     /**
      * Instantiates the Album object
-     * 
+     *
      * @param name the name of the album
      * @throws IllegalArgumentException the name is null or blank
      */
@@ -29,9 +29,14 @@ public class Album implements Serializable {
         this.photos = new UniqueList<Photo>();
     }
 
+    public Album(String name, List<Photo> photos) throws IllegalArgumentException {
+        this.setName(name);
+        this.photos = photos;
+    }
+
     /**
      * Gets the name of the album
-     * 
+     *
      * @return the name of the album
      */
     public String getName() {
@@ -40,7 +45,7 @@ public class Album implements Serializable {
 
     /**
      * Sets the name of the album
-     * 
+     *
      * @param name the name of the album to set
      * @throws IllegalArgumentException the input album name is null or blank
      */
@@ -53,7 +58,7 @@ public class Album implements Serializable {
 
     /**
      * Compares the two Album objects by their name
-     * 
+     *
      * @return a boolean value comparing the two objects
      */
     public boolean equals(Object o) {
@@ -70,7 +75,7 @@ public class Album implements Serializable {
 
     /**
      * Adds a photo to the album
-     * 
+     *
      * @param photo the photo to add
      * @return a boolean value indicating a successful addition of the photo
      */
@@ -98,7 +103,7 @@ public class Album implements Serializable {
 
     /**
      * Removes a photo from the album
-     * 
+     *
      * @param photo the photo to remove
      * @return a boolean value indicating a successful removal of the photo
      */
@@ -108,7 +113,7 @@ public class Album implements Serializable {
 
     /**
      * Checks if the album has photos
-     * 
+     *
      * @return a boolean value that indicates an existence of a photo in the album
      */
     public boolean hasPhotos() {
@@ -117,7 +122,7 @@ public class Album implements Serializable {
 
     /**
      * Provides the number of photos in the album
-     * 
+     *
      * @return the number of photos in the album
      */
     public int getPhotoCount() {
